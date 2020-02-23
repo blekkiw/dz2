@@ -1,6 +1,7 @@
 package ru.blakcat.di.core;
 
 import com.google.common.base.Strings;
+import org.checkerframework.checker.units.qual.A;
 import org.reflections.Reflections;
 import ru.blakcat.di.annotations.Component;
 import ru.blakcat.di.annotations.GoFrameworkApp;
@@ -29,32 +30,56 @@ public final class IocFramework {
                 }
             }
         }
-        injectToNonEmptyConstructor(constructorsForClass);
+
+        List<Class<?>> sortedClasses = sortClasses(new ArrayList<>(types));
+        injectToNonEmptyConstructor(sortedClasses);
+        injectToAnnotatedConstructor(sortedClasses);
         injectToMethod();
 
 
     }
 
-    private static void injectToNonEmptyConstructor(Map<Class<?>, Constructor<?>[]> constructorsForClass) throws IllegalAccessException, InvocationTargetException, InstantiationException {
 
-        for (Map.Entry<Class<?>, Constructor<?>[]> classEntry : constructorsForClass.entrySet()) {
-            for (Constructor<?> constructor : classEntry.getValue()) {
+
+    private static void injectToNonEmptyConstructor(List<Class<?>> sortedClasses) throws IllegalAccessException, InvocationTargetException, InstantiationException {
+
+        for ( Class<?> classEntry : sortedClasses) {
+            for (Constructor<?> constructor : classEntry.getConstructors()) {
                 if (constructor.getParameterCount() != 0) {
-                    List<Object> objects = new ArrayList<>();
-                    Parameter[] parameters = constructor.getParameters();
-                    for (Parameter parameter : parameters) {
-                        objects.add(getByInterface(parameter.getType()));
-                    }
-                    if (objects.contains(null)) continue;
-                    Object bean = constructor.newInstance(objects.toArray());
-                    fillContainer(classEntry.getKey(), bean);
+                    Object bean = createObjectRecursion(classEntry, constructor);
+                    fillContainer(bean.getClass(), bean);
                 }
             }
         }
 
+    }
 
-        for (Map.Entry<Class<?>, Constructor<?>[]> classEntry : constructorsForClass.entrySet()) {
-            for (Constructor<?> constructor : classEntry.getValue()) {
+    private static <T> T createObjectRecursion (Class<T> clazz, Constructor constructor) throws IllegalAccessException, InvocationTargetException, InstantiationException {
+
+        List<Object> objects = new ArrayList<>();
+        Parameter[] parameters = constructor.getParameters();
+        for (Parameter parameter : parameters) {
+            T object = (T) getByInterface(parameter.getType());
+            if (object==null) {
+                Constructor [] constructors = object.getClass().getConstructors();
+                for (Constructor constructor1 : constructors) {
+                    object= (T) createObjectRecursion(object.getClass(), constructor1);
+                    if (object!=null) break;
+                }
+            }
+            objects.add(getByInterface(parameter.getType()));
+        }
+        if (objects.contains(null)) return null;
+        else {
+            T bean = (T) constructor.newInstance(objects.toArray());
+            fillContainer(bean.getClass(),bean);
+            return bean;
+        }
+    }
+
+    private static void injectToAnnotatedConstructor (List<Class<?>> sortedClasses) throws IllegalAccessException, InvocationTargetException, InstantiationException {
+        for ( Class<?> classEntry : sortedClasses) {
+            for (Constructor<?> constructor : classEntry.getConstructors()) {
                 if (constructor.getAnnotation(Inject.class) != null) {
                     List<Object> objects = new ArrayList<>();
                     Parameter[] parameters = constructor.getParameters();
@@ -63,7 +88,7 @@ public final class IocFramework {
                     }
                     if (objects.contains(null)) continue;
                     Object bean = constructor.newInstance(objects.toArray());
-                    fillContainer(classEntry.getKey(), bean);
+                    fillContainer(bean.getClass(), bean);
                 }
             }
         }
@@ -72,8 +97,6 @@ public final class IocFramework {
     private static void injectToMethod() throws InvocationTargetException, IllegalAccessException {
         for (Map.Entry<Class<?>, Object> classObjectEntry : container.entrySet()) {
             if (classObjectEntry.getValue() != null) {
-                Class<?> clazz = classObjectEntry.getKey();
-
                 Method[] methods = classObjectEntry.getValue().getClass().getDeclaredMethods();
                 for (Method method : methods) {
                     if (method.getAnnotation(Inject.class) != null) {
@@ -138,5 +161,26 @@ public final class IocFramework {
         String path = goFrameworkApp.value();
         if (Strings.isNullOrEmpty(path)) path = mainClass.getPackage().getName();
         init(path);
+    }
+
+
+    private static List<Class<?>> sortClasses (List<Class<?>> classes) {
+        classes.sort(new Comparator<Class<?>>() {
+            @Override
+            public int compare(Class<?> aClass, Class<?> t1) {
+
+                return parametrsLength(aClass.getConstructors()).compareTo(parametrsLength(t1.getConstructors()));
+            }
+
+            private Integer parametrsLength (Constructor<?> [] constructors) {
+                int length = 0;
+                for (Constructor<?> constructor : constructors) {
+                    length+=constructor.getParameterCount();
+                }
+                return length;
+            }
+
+        });
+        return classes;
     }
 }
