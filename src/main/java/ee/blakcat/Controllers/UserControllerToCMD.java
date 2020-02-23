@@ -11,9 +11,10 @@ import java.util.stream.Collectors;
 @Component
 public class UserControllerToCMD implements UserController{
 
-    @Inject
+
     private Service service;
 
+    @Inject
     public UserControllerToCMD(Service service) {
         this.service = service;
     }

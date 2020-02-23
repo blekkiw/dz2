@@ -11,7 +11,7 @@ import java.util.Set;
 @Component
 public class UserService implements Service {
 
-    @Inject
+
     private UserRepository userRepository;
 
     public UserService(UserRepository userRepository) {
@@ -35,5 +35,11 @@ public class UserService implements Service {
     public Set<User> findAll ( ) {
 
         return userRepository.findAll();
+    }
+
+
+@Inject
+    public void setUserRepository(UserRepository userRepository) {
+        this.userRepository = userRepository;
     }
 }
