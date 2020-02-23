@@ -16,7 +16,7 @@ public class UserService implements Service {
 
     private UserRepository userRepository;
 
-    public UserService(UserRepository userRepository, UserController userController) {
+    public UserService(UserRepository userRepository) {
         this.userRepository = userRepository;
     }
 

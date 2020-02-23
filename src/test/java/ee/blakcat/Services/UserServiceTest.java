@@ -49,7 +49,7 @@ public class UserServiceTest {
 
         when(userRepository.save(user)).thenReturn(user);
 
-        userService = new UserService(userRepository, new UserControllerToCMD(userService));
+        userService = new UserService(userRepository);
 
 
     }

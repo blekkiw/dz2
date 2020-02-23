@@ -61,12 +61,13 @@ public final class IocFramework {
         for (Parameter parameter : parameters) {
             Object object = getByInterface(parameter.getType());
             if (object==null) {
-                Constructor [] constructors = parameter.getType().getConstructors();
+                Constructor [] constructors = parameter.getClass().getConstructors();
                 for (Constructor constructor1 : constructors) {
-                    object= createObjectRecursion(parameter.getClass(), constructor1);
+                    object =  createObjectRecursion(parameter.getClass(), constructor1);
+                    if (object!=null) break;
                 }
             }
-            objects.add(object);
+            objects.add(getByInterface(parameter.getType()));
         }
         if (objects.contains(null)) return null;
         else {
