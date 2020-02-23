@@ -1,5 +1,6 @@
 package ee.blakcat.Services;
 
+import ee.blakcat.Controllers.UserControllerToCMD;
 import ee.blakcat.Models.User;
 import ee.blakcat.Repositories.UserRepository;
 import ee.blakcat.Repositories.UserRepositoryToMap;
@@ -48,7 +49,7 @@ public class UserServiceTest {
 
         when(userRepository.save(user)).thenReturn(user);
 
-        userService = new UserService(userRepository);
+        userService = new UserService(userRepository, new UserControllerToCMD(userService));
 
 
     }

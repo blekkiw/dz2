@@ -59,15 +59,14 @@ public final class IocFramework {
         List<Object> objects = new ArrayList<>();
         Parameter[] parameters = constructor.getParameters();
         for (Parameter parameter : parameters) {
-            T object = (T) getByInterface(parameter.getType());
+            Object object = getByInterface(parameter.getType());
             if (object==null) {
-                Constructor [] constructors = object.getClass().getConstructors();
+                Constructor [] constructors = parameter.getType().getConstructors();
                 for (Constructor constructor1 : constructors) {
-                    object= (T) createObjectRecursion(object.getClass(), constructor1);
-                    if (object!=null) break;
+                    object= createObjectRecursion(parameter.getClass(), constructor1);
                 }
             }
-            objects.add(getByInterface(parameter.getType()));
+            objects.add(object);
         }
         if (objects.contains(null)) return null;
         else {

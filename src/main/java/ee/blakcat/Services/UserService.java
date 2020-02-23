@@ -1,5 +1,7 @@
 package ee.blakcat.Services;
 
+import com.google.common.base.Strings;
+import ee.blakcat.Controllers.UserController;
 import ee.blakcat.Models.User;
 import ee.blakcat.Repositories.UserRepository;
 import ee.blakcat.Repositories.UserRepositoryToMap;
@@ -14,7 +16,7 @@ public class UserService implements Service {
 
     private UserRepository userRepository;
 
-    public UserService(UserRepository userRepository) {
+    public UserService(UserRepository userRepository, UserController userController) {
         this.userRepository = userRepository;
     }
 
