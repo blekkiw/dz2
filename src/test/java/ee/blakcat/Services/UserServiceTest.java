@@ -18,6 +18,7 @@ import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.mockito.runners.MockitoJUnitRunner;
 
+import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
 
@@ -34,11 +35,19 @@ public class UserServiceTest {
 
     @Before
     public void init() {
+        user = new User("vasya", "petja");
+        user1 = new User("petya", "petja");
+        when(userRepository.findById(user.getId())).thenReturn(user);
+        when(userRepository.findById(user1.getId())).thenReturn(user1);
+
+        when(userRepository.findAll()).thenReturn(new HashSet<User>() {{
+          add(user);
+          add(user1);
+                                                  }});
         when(userRepository.save(user)).thenReturn(user);
         MockitoAnnotations.initMocks(this);
         userService = new UserService(userRepository);
-        user = new User("vasya", "petja");
-        user1 = new User("petya", "petja");
+
 
     }
 
