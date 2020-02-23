@@ -35,17 +35,19 @@ public class UserServiceTest {
 
     @Before
     public void init() {
+        MockitoAnnotations.initMocks(this);
         user = new User("vasya", "petja");
         user1 = new User("petya", "petja");
+        when(userRepository.findAll()).thenReturn(new HashSet<User>() {{
+            add(user);
+            add(user1);
+        }});
         when(userRepository.findById(user.getId())).thenReturn(user);
         when(userRepository.findById(user1.getId())).thenReturn(user1);
 
-        when(userRepository.findAll()).thenReturn(new HashSet<User>() {{
-          add(user);
-          add(user1);
-                                                  }});
+
         when(userRepository.save(user)).thenReturn(user);
-        MockitoAnnotations.initMocks(this);
+
         userService = new UserService(userRepository);
 
 
@@ -61,7 +63,7 @@ public class UserServiceTest {
         assertTrue(Objects.nonNull(saved));
         User saved2 = userService.save(user1);
         Set <User> users = userService.findAll();
-        assertThat(users, contains(saved2, saved));
+        assertThat(users, contains(saved, saved2));
 
     }
 }

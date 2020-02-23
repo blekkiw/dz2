@@ -3,13 +3,23 @@ import ee.blakcat.Models.User;
 import ru.blakcat.di.annotations.GoFrameworkApp;
 import ru.blakcat.di.core.IocFramework;
 
+import java.lang.reflect.InvocationTargetException;
+
 
 @GoFrameworkApp ("ee.blakcat")
 public class Main {
 
     public static void main(String[] args) {
-IocFramework.run(Main.class);
-UserController userControllerToCMD = IocFramework.getByInterface(UserController.class);
+            try {
+                    IocFramework.run(Main.class);
+            } catch (IllegalAccessException e) {
+                    e.printStackTrace();
+            } catch (InvocationTargetException e) {
+                    e.printStackTrace();
+            } catch (InstantiationException e) {
+                    e.printStackTrace();
+            }
+            UserController userControllerToCMD = IocFramework.getByInterface(UserController.class);
 
 
 
