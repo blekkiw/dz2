@@ -14,7 +14,6 @@ public class UserControllerToCMD implements UserController{
 
     private Service service;
 
-    @Inject
     public UserControllerToCMD(Service service) {
         this.service = service;
     }

@@ -81,13 +81,7 @@ public final class IocFramework {
         for ( Class<?> classEntry : sortedClasses) {
             for (Constructor<?> constructor : classEntry.getConstructors()) {
                 if (constructor.getAnnotation(Inject.class) != null) {
-                    List<Object> objects = new ArrayList<>();
-                    Parameter[] parameters = constructor.getParameters();
-                    for (Parameter parameter : parameters) {
-                        objects.add(getByInterface(parameter.getType()));
-                    }
-                    if (objects.contains(null)) continue;
-                    Object bean = constructor.newInstance(objects.toArray());
+                    Object bean = createObjectRecursion(classEntry, constructor);
                     fillContainer(bean.getClass(), bean);
                 }
             }

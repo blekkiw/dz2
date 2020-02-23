@@ -38,7 +38,6 @@ public class UserService implements Service {
     }
 
 
-@Inject
     public void setUserRepository(UserRepository userRepository) {
         this.userRepository = userRepository;
     }
